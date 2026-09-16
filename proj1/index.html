@@ -55,8 +55,16 @@
 
         <section class="part">
             <h2>Normalized Cross-Correlation (NCC)</h2>
-            <p class="text">I score alignments with normalized cross-correlation. Both cropped images are mean-centered and divided by their norms, and the score is the dot product of the two resulting vectors.</p>
-            <p class="text">Mean-centering removes the overall brightness difference between the channels and normalizing removes the difference in contrast, so the score measures how well the two channels agree in structure rather than in raw intensity. The displacement with the highest NCC score is selected as the alignment.</p>
+            <p class="text">I score alignments with normalized cross-correlation. Both cropped images are mean-centered and divided by their norms, and the score is the dot product of the two resulting vectors:</p>
+            <div class="formula">
+                <span class="fn">NCC</span>(<i>a</i>,&thinsp;<i>b</i>) <span class="eq">=</span>
+                <span class="frac">
+                    <span class="num">&sum; (<i>a<sub>i</sub></i> &minus; <i>ā</i>)(<i>b<sub>i</sub></i> &minus; <i>b̄</i>)</span>
+                    <span class="den">&Vert;<i>a</i> &minus; <i>ā</i>&Vert; &middot; &Vert;<i>b</i> &minus; <i>b̄</i>&Vert;</span>
+                </span>
+            </div>
+            <p class="text">Here <i>a</i> and <i>b</i> are the two cropped channels flattened into vectors, and <i>ā</i> and <i>b̄</i> are their means. The score lies between &minus;1 and 1, where 1 means the channels match perfectly.</p>
+            <p class="text">Mean-centering removes the overall brightness difference between the channels and dividing by the norms removes the difference in contrast, so the score measures how well the two channels agree in structure rather than in raw intensity. The displacement with the highest NCC score is selected as the alignment.</p>
         </section>
 
         <section class="part">
