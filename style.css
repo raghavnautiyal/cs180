@@ -247,3 +247,18 @@ code {
         gap: 1rem;
     }
 }
+
+/* Click-to-enlarge image links */
+.zoom {
+    display: block;
+    line-height: 0;
+    cursor: zoom-in;
+}
+
+.zoom img {
+    transition: opacity 0.2s ease;
+}
+
+.zoom:hover img {
+    opacity: 0.85;
+}
