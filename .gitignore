@@ -4,3 +4,7 @@ project0_images/
 proj1/CS180_fa2026_proj1_data/
 proj1/code.py
 proj1/*.jpg
+proj1/proj1_images/
+__pycache__/
+*.pyc
+proj1/*.py
