@@ -55,8 +55,16 @@
 
         <section class="part">
             <h2>Normalized Cross-Correlation (NCC)</h2>
-            <p class="text">I score alignments with normalized cross-correlation. Both cropped images are mean-centered and divided by their norms, and the score is the dot product of the two resulting vectors.</p>
-            <p class="text">Mean-centering removes the overall brightness difference between the channels and normalizing removes the difference in contrast, so the score measures how well the two channels agree in structure rather than in raw intensity. The displacement with the highest NCC score is selected as the alignment.</p>
+            <p class="text">I score alignments with normalized cross-correlation. Both cropped images are mean-centered and divided by their norms, and the score is the dot product of the two resulting vectors:</p>
+            <div class="formula">
+                NCC(<em>a</em>, <em>b</em>) &nbsp;=&nbsp;
+                <span class="frac">
+                    <span class="num">&sum;<sub>i</sub> (<em>a<sub>i</sub></em> &minus; <em>ā</em>)(<em>b<sub>i</sub></em> &minus; <em>b̄</em>)</span>
+                    <span class="den">&#8730;<span class="rad">&sum;<sub>i</sub> (<em>a<sub>i</sub></em> &minus; <em>ā</em>)<sup>2</sup></span> &middot; &#8730;<span class="rad">&sum;<sub>i</sub> (<em>b<sub>i</sub></em> &minus; <em>b̄</em>)<sup>2</sup></span></span>
+                </span>
+            </div>
+            <p class="text">Here <em>a</em> and <em>b</em> are the two cropped channels flattened into vectors, and <em>ā</em> and <em>b̄</em> are their means. The score lies in [&minus;1, 1], where 1 means the two channels match perfectly.</p>
+            <p class="text">Mean-centering removes the overall brightness difference between the channels and dividing by the norms removes the difference in contrast, so the score measures how well the two channels agree in structure rather than in raw intensity. The displacement with the highest NCC score is selected as the alignment.</p>
         </section>
 
         <section class="part">
