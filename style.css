@@ -47,6 +47,15 @@ a {
     font-size: 1rem;
 }
 
+.intro {
+    margin-top: 1.25rem;
+}
+
+.note {
+    margin-top: 1rem;
+    color: var(--muted-text);
+}
+
 /* Sections */
 .part {
     margin-top: 2.5rem;
@@ -108,8 +117,89 @@ figure.single {
     margin: 1.5rem auto;
 }
 
+figure.wide {
+    margin: 1.5rem 0;
+}
+
+.gallery.three {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.gallery.four {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.gallery.compact {
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.gallery-caption {
+    margin: -0.5rem 0 1.5rem;
+    font-size: 0.85rem;
+    color: var(--muted-text);
+    text-align: center;
+}
+
+img.pixelated {
+    image-rendering: pixelated;
+}
+.part h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 2rem 0 0.75rem;
+}
+
+/* Image placeholder */
+.placeholder {
+    aspect-ratio: 4 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--border-color);
+    border-radius: 6px;
+    color: var(--muted-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Code blocks */
+pre.code {
+    background: #1f2a37;
+    color: #e5e9ef;
+    padding: 1.1rem 1.35rem;
+    border-radius: 8px;
+    border: 1px solid #2c3a4b;
+    box-shadow: 0 4px 12px rgba(15, 20, 28, 0.15);
+    overflow-x: auto;
+    margin: 0.75rem 0 1.75rem;
+    min-height: 3rem;
+    tab-size: 4;
+}
+
+pre.code code,
+pre.code code.hljs {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: 0.82rem;
+    line-height: 1.65;
+}
+
+pre.code::-webkit-scrollbar {
+    height: 8px;
+}
+
+pre.code::-webkit-scrollbar-thumb {
+    background: #3b4a5c;
+    border-radius: 4px;
+}
+
 @media (max-width: 768px) {
-    .gallery {
+    .gallery,
+    .gallery.three,
+    .gallery.four {
         grid-template-columns: 1fr;
     }
 
@@ -166,6 +256,47 @@ figure.single {
     font-size: 0.9rem;
     color: var(--muted-text);
     margin-top: 0.25rem;
+}
+
+/* Results tables */
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0 1.5rem;
+    font-size: 0.9rem;
+    background: var(--card-background);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.results-table caption {
+    caption-side: bottom;
+    padding-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--muted-text);
+}
+
+.results-table th,
+.results-table td {
+    padding: 0.6rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.results-table th {
+    font-weight: 600;
+    background: rgba(31, 42, 55, 0.06);
+}
+
+.results-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.results-table td:last-child,
+.results-table th:last-child {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
 }
 
 /* Inline code */
@@ -320,6 +451,7 @@ code {
 
 .formula i {
     font-style: italic;
+    padding-right: 0.12em;
 }
 
 .formula .fn {
@@ -329,6 +461,14 @@ code {
 
 .formula .eq {
     margin: 0 0.5em;
+}
+
+.formula .op {
+    margin: 0 0.3em;
+}
+
+.formula-line + .formula-line {
+    margin-top: 0.5rem;
 }
 
 .formula .frac {
@@ -346,4 +486,87 @@ code {
 .formula .den {
     display: block;
     padding: 0.25em 0.6em 0;
+}
+
+/* Print / PDF export */
+@media print {
+    @page {
+        margin: 0.5in;
+    }
+
+    body {
+        background: #fff;
+    }
+
+    .container {
+        max-width: none;
+        padding: 0;
+    }
+
+    .note,
+    .lightbox {
+        display: none !important;
+    }
+
+    .gallery {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem;
+        margin: 1rem 0;
+    }
+
+    .gallery.three {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    .gallery.four {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+
+    .gallery.compact {
+        max-width: 60%;
+    }
+
+    figure {
+        padding: 0.5rem;
+        box-shadow: none;
+        break-inside: avoid;
+    }
+
+    figure img {
+        width: auto;
+        max-width: 100%;
+        max-height: 3.5in;
+        margin: 0 auto;
+    }
+
+    figure.single img,
+    figure.wide img {
+        max-height: 5.5in;
+    }
+
+    h2,
+    h3 {
+        break-after: avoid;
+    }
+
+    .part {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+    }
+
+    pre.code {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        box-shadow: none;
+        break-inside: avoid;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .results-table,
+    .formula {
+        break-inside: avoid;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 }

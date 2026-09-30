@@ -8,3 +8,12 @@ proj1/proj1_images/
 __pycache__/
 *.pyc
 proj1/*.py
+proj1/submission/
+proj1/submission.zip
+proj1/readme.txt
+proj2/*.py
+proj2/*.pdf
+proj2/cs180_proj2_hybrid_starter_code/
+proj2/results_backup/
+proj2/spline/
+proj2/pictures/*.pdf
