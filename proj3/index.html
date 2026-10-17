@@ -63,7 +63,7 @@
             <div class="formula">
                 <div class="formula-line"><i>x&#770;</i><sub>1</sub> <span class="eq">=</span> <i>x</i><sub>t</sub> <span class="op">+</span> (1 <span class="op">&minus;</span> <i>t</i>)&thinsp;<i>v&#770;</i><sub>&theta;</sub>(<i>x</i><sub>t</sub>, <i>t</i>, <i>c</i>)</div>
             </div>
-            <p class="text">I predicted the velocity once with the prompt "a high quality photo" and jumped straight to <i>t</i> = 1.</p>
+            <p class="text">I predicted the velocity once with the prompt "a high quality photo" and jumped straight to <i>t</i> = 1. Since the velocity points from the noise to the image, (1 &minus; <i>t</i>) times it is how far is left to go.</p>
             <figure class="wide">
                 <a class="zoom" href="3a_outputs/1_3a.png"><img src="3a_outputs/1_3a.png" alt="Original, noisy input and one-step estimate at t = 0.25"></a>
                 <figcaption>t = 0.25 · original, noisy input, one-step estimate</figcaption>
@@ -118,6 +118,7 @@
                 <a class="zoom" href="3a_outputs/1_5.png"><img src="3a_outputs/1_5.png" alt="Euler denoising trajectory from t = 0.50 to t = 1.00"></a>
                 <figcaption>Euler trajectory from t = 0.50 to t = 1.00 · every step is shown, so the initial state, every fifth update and the final image are all in here</figcaption>
             </figure>
+            <p class="text">We can see the grain fade a little at each step until it's gone at 1.00. The poses and colors stay the same the whole way, since starting at 0.50 already keeps them, while details like the faces and the referee get sharper.</p>
 
             <h3>Comparison of Denoising Methods</h3>
             <figure class="wide">
@@ -180,7 +181,7 @@
                 <a class="zoom" href="3a_outputs/3_1b.png"><img src="3a_outputs/3_1b.png" alt="Rocky vs Apollo edits at increasing starting times"></a>
                 <figcaption>Rocky vs Apollo · original and edits at each starting time</figcaption>
             </figure>
-            <p class="text">The low starting times give some random results, like a portrait and a computer monitor. The boxers come back around 0.25.</p>
+            <p class="text">At 0.02 it's a portrait and at 0.04 to 0.06 a computer monitor. At 0.10 and 0.14 there's a man and an arm reaching across, but the middle is a black panel. The boxers come back at 0.25.</p>
 
             <h3>Green Lantern Action Figure</h3>
             <figure class="wide">
@@ -216,7 +217,7 @@
 
         <section class="part" id="a-3-2">
             <h2>Part A 3.2: Text-Guided Image Editing</h2>
-            <p class="text">Same as 3.1, but with my own prompt for each image.</p>
+            <p class="text">Same as 3.1, but with my own prompt for each image. Lower starting times follow the prompt more, and higher ones keep more of the original.</p>
 
             <h3>Campanile to Rocket</h3>
             <p class="text">Prompt: “a photo of a rocket on a launch pad”</p>
@@ -264,7 +265,7 @@
                 <a class="zoom" href="3a_outputs/3_3_b.png"><img src="3a_outputs/3_3_b.png" alt="Visual anagram: a duck upright and a fish when rotated 180 degrees"></a>
                 <figcaption>Duck (upright) · Fish (rotated 180°)</figcaption>
             </figure>
-            <p class="text">Both work pretty well, though the duck's beak is still visible in the fish.</p>
+            <p class="text">Both work pretty well. The duck's body becomes the fish's body when flipped, though the duck's beak is still visible in the fish.</p>
         </section>
 
         <section class="part" id="a-3-4">
@@ -344,7 +345,7 @@
                 <a class="zoom" href="3b_outputs/denoising_epoch_5_1_2_1.png"><img src="3b_outputs/denoising_epoch_5_1_2_1.png" alt="Test-set denoising results at sigma = 0.5 after epoch 5"></a>
                 <figcaption>Test set at σ = 0.5 · after epoch 5</figcaption>
             </figure>
-            <p class="text">The rows are clean, noisy and denoised. Most of the noise is already gone after epoch 1, and the digits are cleaner after epoch 5.</p>
+            <p class="text">The rows are clean, noisy and denoised. Most of the noise is already gone after epoch 1, and the digits are cleaner after epoch 5. The loss drops fast in the first 100 or so steps and then slowly goes down to about 0.01.</p>
 
             <h3>1.2.2 Out-of-Distribution Testing</h3>
             <figure class="single">
@@ -381,7 +382,7 @@
 
         <section class="part" id="b-2-2">
             <h2>Part B 2.2: Training the Time-Conditioned UNet</h2>
-            <p class="text">D = 64, batch size 64, 10 epochs, Adam with learning rate 1e-2 and exponential decay, and 50 timesteps.</p>
+            <p class="text">D = 64, batch size 64, 10 epochs, Adam with learning rate 1e-2 and exponential decay, and 50 timesteps. The loss drops from about 1.7 to below 0.2 in the first few hundred steps, and then slowly goes down to about 0.09.</p>
             <figure class="single">
                 <a class="zoom" href="3b_outputs/loss_curve_2_2.png"><img src="3b_outputs/loss_curve_2_2.png" alt="Training loss curve for the time-conditioned UNet"></a>
                 <figcaption>Training loss · time-conditioned UNet</figcaption>
@@ -403,7 +404,7 @@
                 <a class="zoom" href="3b_outputs/2_3_epoch_10.png"><img src="3b_outputs/2_3_epoch_10.png" alt="Time-conditioned samples after epoch 10"></a>
                 <figcaption>After epoch 10</figcaption>
             </figure>
-            <p class="text">Epoch 1 is mostly squiggles, and by epoch 10 most samples are readable digits, though some are still malformed. This makes sense since the model doesn't know which digit to make, so some samples end up somewhere between two digits.</p>
+            <p class="text">Epoch 1 is mostly squiggles. By epoch 5 a lot of them look like digits, and by epoch 10 most are readable, though some are still malformed. Since I used the same seed, we can see the same samples get cleaner from epoch 5 to 10, like the 3 in the top right. This makes sense since the model doesn't know which digit to make, so some samples end up somewhere between two digits.</p>
         </section>
 
         <section class="part" id="b-2-4">
@@ -416,7 +417,7 @@
 
         <section class="part" id="b-2-5">
             <h2>Part B 2.5: Training the Class-Conditioned UNet</h2>
-            <p class="text">Same as 2.2, but with the class label and 300 timesteps.</p>
+            <p class="text">Same as 2.2, but with the class label and 300 timesteps. The curve looks almost the same as the time-only one and levels off a bit below 0.1.</p>
             <figure class="single">
                 <a class="zoom" href="3b_outputs/loss_curve_2_5.png"><img src="3b_outputs/loss_curve_2_5.png" alt="Training loss curve for the class-conditioned UNet"></a>
                 <figcaption>Training loss · class-conditioned UNet</figcaption>
@@ -465,7 +466,7 @@
                     <figcaption>Without scheduler · epoch 10</figcaption>
                 </figure>
             </div>
-            <p class="text">The loss curves and samples look almost the same with and without the scheduler.</p>
+            <p class="text">The loss curves and samples look almost the same with and without the scheduler. Both losses level off a bit below 0.1, and the samples without the scheduler are just as clean, with every digit correct.</p>
         </section>
     </main>
 
