@@ -488,6 +488,19 @@ code {
     padding: 0.25em 0.6em 0;
 }
 
+/* Images shown at their real pixel size */
+figure.native {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+figure.native img {
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
 /* Print / PDF export */
 @media print {
     @page {

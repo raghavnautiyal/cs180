@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS 180: Project 3</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+    <main class="container">
+        <header class="page-header">
+            <h1><a class="crumb" href="../">CS 180</a>: Project 3</h1>
+            <div class="subtitle">Fun with Flow Models</div>
+        </header>
+
+        <p class="text intro">This is project 3 of CS 180 in Fall 2026, exploring flow matching models.</p>
+        <p class="text note">Note: click any image to enlarge it.</p>
+
+        <!-- ===================== PART A ===================== -->
+
+        <section class="part" id="part-a">
+            <h2>Part A: Exploring the Power of Flow Models</h2>
+            <div class="formula">
+                <div class="formula-line"><i>x</i><sub>t</sub> <span class="eq">=</span> (1 <span class="op">&minus;</span> <i>t</i>)<i>&epsilon;</i> <span class="op">+</span> <i>t</i>&thinsp;<i>x</i><sub>1</sub></div>
+                <div class="formula-line"><i>v</i> <span class="eq">=</span> <i>x</i><sub>1</sub> <span class="op">&minus;</span> <i>&epsilon;</i></div>
+            </div>
+            <p class="text">For Part A, I used the pretrained PixNerd flow model. A noisy image mixes the clean image and Gaussian noise, where <i>t</i> = 0 is pure noise and <i>t</i> = 1 is the clean image. For 1.1 to 1.5, I used a photo of Rocky fighting Apollo Creed from the movie <i>Rocky</i> (1976).</p>
+        </section>
+
+        <section class="part" id="a-1-1">
+            <h2>Part A 1.1: Constructing Noisy Training Inputs</h2>
+            <p class="text">I used the same noise for all three times. At <i>t</i> = 0.25 the boxers are barely visible, at 0.50 they're clear but grainy, and at 0.75 the image is mostly clean.</p>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/1_1.png"><img src="3a_outputs/1_1.png" alt="Original image and noisy versions at t = 0.25, 0.50 and 0.75"></a>
+                <figcaption>Original and noisy inputs at t = 0.25, 0.50, 0.75</figcaption>
+            </figure>
+        </section>
+
+        <section class="part" id="a-1-2">
+            <h2>Part A 1.2: Classical Denoising</h2>
+            <div class="formula">
+                <div class="formula-line"><i>x&#770;</i><sub>1</sub> <span class="eq">=</span> <i>G</i><sub>&sigma;</sub><span class="op">&lowast;</span>(<i>x</i><sub>t</sub> / <i>t</i>)</div>
+            </div>
+            <p class="text">I divided the noisy image by <i>t</i>, blurred it, and kept the σ (out of 1, 2, 4, 8 and 16) with the lowest error.</p>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/1_2a.png"><img src="3a_outputs/1_2a.png" alt="Noisy input and Gaussian blur at t = 0.25"></a>
+                <figcaption>t = 0.25 · σ = 8</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/1_2b.png"><img src="3a_outputs/1_2b.png" alt="Noisy input and Gaussian blur at t = 0.50"></a>
+                <figcaption>t = 0.50 · σ = 4</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/1_2c.png"><img src="3a_outputs/1_2c.png" alt="Noisy input and Gaussian blur at t = 0.75"></a>
+                <figcaption>t = 0.75 · σ = 2</figcaption>
+            </figure>
+            <p class="text">More noise needs a stronger blur, which also removes more detail. At <i>t</i> = 0.25 we're left with blobs of color, while at 0.75 the faces are still there.</p>
+        </section>
+
+        <section class="part" id="a-1-3">
+            <h2>Part A 1.3: One-Step Denoising</h2>
+            <div class="formula">
+                <div class="formula-line"><i>x&#770;</i><sub>1</sub> <span class="eq">=</span> <i>x</i><sub>t</sub> <span class="op">+</span> (1 <span class="op">&minus;</span> <i>t</i>)&thinsp;<i>v&#770;</i><sub>&theta;</sub>(<i>x</i><sub>t</sub>, <i>t</i>, <i>c</i>)</div>
+            </div>
+            <p class="text">I predicted the velocity once with the prompt "a high quality photo" and jumped straight to <i>t</i> = 1.</p>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/1_3a.png"><img src="3a_outputs/1_3a.png" alt="Original, noisy input and one-step estimate at t = 0.25"></a>
+                <figcaption>t = 0.25 · original, noisy input, one-step estimate</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/1_3b.png"><img src="3a_outputs/1_3b.png" alt="Original, noisy input and one-step estimate at t = 0.50"></a>
+                <figcaption>t = 0.50 · original, noisy input, one-step estimate</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/1_3c.png"><img src="3a_outputs/1_3c.png" alt="Original, noisy input and one-step estimate at t = 0.75"></a>
+                <figcaption>t = 0.75 · original, noisy input, one-step estimate</figcaption>
+            </figure>
+            <p class="text">The results are sharp, but at high noise the model has to guess. At <i>t</i> = 0.25 both boxers get new faces and the referee disappears, while at 0.75 it's very close to the original.</p>
+        </section>
+
+        <section class="part" id="a-1-4">
+            <h2>Part A 1.4: Visualizing Velocity</h2>
+            <div class="formula">
+                <div class="formula-line">predicted update <span class="eq">=</span> (1 <span class="op">&minus;</span> <i>t</i>)&thinsp;<i>v&#770;</i><sub>&theta;</sub></div>
+                <div class="formula-line">ground-truth update <span class="eq">=</span> (1 <span class="op">&minus;</span> <i>t</i>)(<i>x</i><sub>1</sub> <span class="op">&minus;</span> <i>&epsilon;</i>) <span class="eq">=</span> <i>x</i><sub>1</sub> <span class="op">&minus;</span> <i>x</i><sub>t</sub></div>
+                <div class="formula-line">error <span class="eq">=</span> &radic;( &frac13; &sum;<sub><i>c</i> &isin; {R, G, B}</sub> (predicted<sub><i>c</i></sub> <span class="op">&minus;</span> ground truth<sub><i>c</i></sub>)<sup>2</sup> )</div>
+            </div>
+            <p class="text">This compares the model's predicted update with the true update, and the heatmap shows the error at each pixel.</p>
+            <figure class="single">
+                <a class="zoom" href="project3a_results/velocity_original.png"><img src="project3a_results/velocity_original.png" alt="Original image used for the velocity visualization"></a>
+                <figcaption>Original image</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/1_4a.png"><img src="3a_outputs/1_4a.png" alt="Noisy image, predicted update, ground-truth update and error heatmap at t = 0.25"></a>
+                <figcaption>t = 0.25 · noisy image, predicted update, ground-truth update, error</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/1_4b.png"><img src="3a_outputs/1_4b.png" alt="Noisy image, predicted update, ground-truth update and error heatmap at t = 0.50"></a>
+                <figcaption>t = 0.50 · noisy image, predicted update, ground-truth update, error</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/1_4c.png"><img src="3a_outputs/1_4c.png" alt="Noisy image, predicted update, ground-truth update and error heatmap at t = 0.75"></a>
+                <figcaption>t = 0.75 · noisy image, predicted update, ground-truth update, error</figcaption>
+            </figure>
+            <p class="text">Most of the error is on edges like the faces, hair and gloves, and there's almost none on the black background. The error also gets smaller as <i>t</i> increases, since less correction is needed.</p>
+        </section>
+
+        <section class="part" id="a-1-5">
+            <h2>Part A 1.5: Iterative Denoising with Euler Sampling</h2>
+            <div class="formula">
+                <div class="formula-line"><i>x</i><sub>t+h</sub> <span class="eq">=</span> <i>x</i><sub>t</sub> <span class="op">+</span> <i>h</i>&thinsp;<i>v</i><sub>&theta;</sub>(<i>x</i><sub>t</sub>, <i>t</i>, <i>c</i>), &nbsp; <i>h</i> <span class="eq">=</span> 0.02</div>
+            </div>
+            <p class="text">Instead of one big step, I took 25 small Euler steps from <i>t</i> = 0.50, predicting a new velocity each time.</p>
+
+            <h3>Euler Trajectory</h3>
+            <figure class="single">
+                <a class="zoom" href="3a_outputs/1_5.png"><img src="3a_outputs/1_5.png" alt="Euler denoising trajectory from t = 0.50 to t = 1.00"></a>
+                <figcaption>Euler trajectory from t = 0.50 to t = 1.00 · every step is shown, so the initial state, every fifth update and the final image are all in here</figcaption>
+            </figure>
+
+            <h3>Comparison of Denoising Methods</h3>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/1_5b.png"><img src="3a_outputs/1_5b.png" alt="Original, Gaussian blur, one-step estimate and Euler result from the same t = 0.50 input"></a>
+                <figcaption>Original, Gaussian blur, one-step estimate, Euler denoising (same t = 0.50 input)</figcaption>
+            </figure>
+            <table class="results-table">
+                <caption>Reconstruction MSE against the original image (t = 0.50 input)</caption>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>MSE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Gaussian blur</td><td>0.0181</td></tr>
+                    <tr><td>One-step</td><td>0.0039</td></tr>
+                    <tr><td>Euler</td><td>0.0048</td></tr>
+                </tbody>
+            </table>
+            <p class="text">Blur is the worst. One-step has the lowest error but looks airbrushed, while Euler keeps more detail like the skin texture and sweat. This could be because the extra detail doesn't exactly match the original pixels, so the error goes up a bit.</p>
+        </section>
+
+        <section class="part" id="a-1-6">
+            <h2>Part A 1.6: Generating Images from Noise</h2>
+            <p class="text">I started from pure noise at <i>t</i> = 0 with seeds 180 to 184 and the prompt "a high quality photo".</p>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/1_6.png"><img src="3a_outputs/1_6.png" alt="Five samples generated from pure noise with seeds 180 to 184"></a>
+                <figcaption>Five samples from pure noise · seeds 180 to 184</figcaption>
+            </figure>
+            <p class="text">All five samples are portraits of people, so the generic prompt seems to strongly favor portrait photos. The quality is mixed: seeds 182 and 184 look like reasonable photos, but seed 180 has a smeared, missing face, seed 183 has a distorted face, and seed 181's body looks unnatural.</p>
+        </section>
+
+        <section class="part" id="a-2-1">
+            <h2>Part A 2.1: Classifier-Free Guidance (CFG)</h2>
+            <div class="formula">
+                <div class="formula-line"><i>v</i> <span class="eq">=</span> <i>v</i><sub>c</sub> <span class="op">+</span> <i>w</i>(<i>v</i><sub>c</sub> <span class="op">&minus;</span> <i>v</i><sub>u</sub>), &nbsp; <i>w</i> <span class="eq">=</span> 7</div>
+            </div>
+            <p class="text">I combined the velocities from the prompt and an empty prompt with <i>w</i> = 7.</p>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/2_1.png"><img src="3a_outputs/2_1.png" alt="Five CFG samples with w = 7, seeds 180 to 184"></a>
+                <figcaption>CFG samples · w = 7 · same seeds as Section 1.6</figcaption>
+            </figure>
+            <p class="text">Using the same starting noise as in Section 1.6, the CFG samples are much cleaner. All five are sharp, well-formed studio portraits with no distorted faces, and some keep the pose from the unguided version, like the hand by the face for seed 182. The trade-off is diversity: they all look like the same kind of front-facing headshot with similar lighting, while the unguided samples varied more.</p>
+        </section>
+
+        <section class="part" id="a-3-1">
+            <h2>Part A 3.1: Image-to-Image Editing</h2>
+            <p class="text">I noised each image to a starting time and then denoised it with "a high quality photo". Lower starting times give bigger edits. I used 0.02, 0.04, 0.06, 0.10, 0.14, 0.25 and 0.50. This works because the model has to make up whatever the noise covered, so more noise gives it more room to change things.</p>
+
+            <h3>Campanile</h3>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/3_1a.png"><img src="3a_outputs/3_1a.png" alt="Campanile edits at increasing starting times"></a>
+                <figcaption>Campanile · original and edits at each starting time</figcaption>
+            </figure>
+            <p class="text">At 0.02 it's just a plain white pillar. The tower's details come back gradually, and the clock only shows up at 0.50.</p>
+
+            <h3>Rocky vs Apollo</h3>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/3_1b.png"><img src="3a_outputs/3_1b.png" alt="Rocky vs Apollo edits at increasing starting times"></a>
+                <figcaption>Rocky vs Apollo · original and edits at each starting time</figcaption>
+            </figure>
+            <p class="text">The low starting times give some random results, like a portrait and a computer monitor. The boxers come back around 0.25.</p>
+
+            <h3>Green Lantern Action Figure</h3>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/3_1c.png"><img src="3a_outputs/3_1c.png" alt="Green Lantern action figure edits at increasing starting times"></a>
+                <figcaption>Green Lantern figure · original and edits at each starting time</figcaption>
+            </figure>
+            <p class="text">The square crop cut off the figure's head and feet. At low starting times it turns into a regular person in a T-shirt, and the costume is back by 0.25.</p>
+
+            <h3>Editing Web and Hand-Drawn Images</h3>
+            <p class="text">I used a cartoon tree from the web, and drew a flower and a sun myself using the free drawing website <a href="https://kleki.com/">kleki.com</a>.</p>
+
+            <h3>Web Image: Cartoon Tree</h3>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/3_1hand_drawn_a.png"><img src="3a_outputs/3_1hand_drawn_a.png" alt="Cartoon tree from the web, edited at increasing starting times"></a>
+                <figcaption>Cartoon tree (web) · original and edits at each starting time</figcaption>
+            </figure>
+            <p class="text">At 0.02 it's a man's head and at 0.04 a realistic tree. The cartoon is back from 0.10.</p>
+
+            <h3>Hand Drawing 1: Flower</h3>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/3_1hand_drawn_b.png"><img src="3a_outputs/3_1hand_drawn_b.png" alt="Hand-drawn flower edited at increasing starting times"></a>
+                <figcaption>Flower drawing · original and edits at each starting time</figcaption>
+            </figure>
+            <p class="text">At 0.02 it's a lollipop and at 0.06 a more realistic flower. My drawing is back from 0.10.</p>
+
+            <h3>Hand Drawing 2: Sun</h3>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/3_1hand_drawn_c.png"><img src="3a_outputs/3_1hand_drawn_c.png" alt="Hand-drawn sun edited at increasing starting times"></a>
+                <figcaption>Sun drawing · original and edits at each starting time</figcaption>
+            </figure>
+            <p class="text">At low starting times it becomes a jar and then a bowl, probably because of the round shape. The sun is back from 0.10.</p>
+        </section>
+
+        <section class="part" id="a-3-2">
+            <h2>Part A 3.2: Text-Guided Image Editing</h2>
+            <p class="text">Same as 3.1, but with my own prompt for each image.</p>
+
+            <h3>Campanile to Rocket</h3>
+            <p class="text">Prompt: “a photo of a rocket on a launch pad”</p>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/3_2_a.png"><img src="3a_outputs/3_2_a.png" alt="Campanile edited toward a rocket on a launch pad"></a>
+                <figcaption>Campanile · “a photo of a rocket on a launch pad”</figcaption>
+            </figure>
+            <p class="text">At 0.02 to 0.06 it's a full rocket, at 0.10 to 0.14 a rocket shaped like the tower, and by 0.50 it's the Campanile again.</p>
+
+            <h3>Rocky vs Apollo to Boxing Robots</h3>
+            <p class="text">Prompt: “two robots boxing in a boxing ring”</p>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/3_2_b.png"><img src="3a_outputs/3_2_b.png" alt="Rocky vs Apollo edited toward two robots boxing"></a>
+                <figcaption>Rocky vs Apollo · “two robots boxing in a boxing ring”</figcaption>
+            </figure>
+            <p class="text">The low starting times give two robots boxing, and 0.14 and 0.25 are a mix of robots and humans.</p>
+
+            <h3>Green Lantern to Squirrel</h3>
+            <p class="text">Prompt: “a squirrel in green lantern costume”</p>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/3_3_c_.png"><img src="3a_outputs/3_3_c_.png" alt="Green Lantern figure edited toward a squirrel in a Green Lantern costume"></a>
+                <figcaption>Green Lantern figure · “a squirrel in green lantern costume”</figcaption>
+            </figure>
+            <p class="text">Since the head was cut off, the squirrel mostly shows up as fur on the legs instead of a face. It's back to the original by 0.25.</p>
+        </section>
+
+        <section class="part" id="a-3-3">
+            <h2>Part A 3.3: Visual Anagrams</h2>
+            <div class="formula">
+                <div class="formula-line"><i>v</i> <span class="eq">=</span> &frac12;[&thinsp;<i>v</i><sub>CFG</sub>(<i>x</i><sub>t</sub>, <i>t</i>, <i>c</i><sub>a</sub>) <span class="op">+</span> <i>F</i>(<i>v</i><sub>CFG</sub>(<i>F</i>(<i>x</i><sub>t</sub>), <i>t</i>, <i>c</i><sub>b</sub>))&thinsp;]</div>
+            </div>
+            <p class="text">At each step, I averaged the velocity of the upright image with the velocity of the flipped image (flipped back). Both prompt pairs are examples from the inspiration page linked in the project spec.</p>
+
+            <h3>Anagram 1: Kitchen / Deer</h3>
+            <p class="text">Upright: “an oil painting of a kitchen” · Rotated 180°: “an oil painting of a deer”</p>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/3_3_a.png"><img src="3a_outputs/3_3_a.png" alt="Visual anagram: a kitchen upright and a deer when rotated 180 degrees"></a>
+                <figcaption>Kitchen (upright) · Deer (rotated 180°)</figcaption>
+            </figure>
+            <p class="text">The deer is very clear when flipped. The kitchen is weaker, since you can still make out the deer's face upright.</p>
+
+            <h3>Anagram 2: Duck / Fish</h3>
+            <p class="text">Upright: “a lithograph of a duck” · Rotated 180°: “a lithograph of a fish”</p>
+            <figure class="wide">
+                <a class="zoom" href="3a_outputs/3_3_b.png"><img src="3a_outputs/3_3_b.png" alt="Visual anagram: a duck upright and a fish when rotated 180 degrees"></a>
+                <figcaption>Duck (upright) · Fish (rotated 180°)</figcaption>
+            </figure>
+            <p class="text">Both work pretty well, though the duck's beak is still visible in the fish.</p>
+        </section>
+
+        <section class="part" id="a-3-4">
+            <h2>Part A 3.4: Hybrid Images</h2>
+            <div class="formula">
+                <div class="formula-line"><i>v</i> <span class="eq">=</span> <span class="fn">lowpass</span>(<i>v</i><sub>a</sub>) <span class="op">+</span> [&thinsp;<i>v</i><sub>b</sub> <span class="op">&minus;</span> <span class="fn">lowpass</span>(<i>v</i><sub>b</sub>)&thinsp;]</div>
+            </div>
+            <p class="text">I combined the low frequencies of one prompt's velocity with the high frequencies of the other's. The distant view is the image at its actual 64×64 size. Same idea as the hybrids in project 2, but instead of mixing two images, we mix the two velocities at every step.</p>
+
+            <h3>Hybrid 1: Panda / Flowers</h3>
+            <p class="text">Distant: “a painting of a panda's face” · Close: “a painting of a bouqet of flowers”</p>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="3a_outputs/3_4_a1.png"><img src="3a_outputs/3_4_a1.png" alt="Panda and flowers hybrid at full size"></a>
+                    <figcaption>Close view · 512 × 512</figcaption>
+                </figure>
+                <figure class="native">
+                    <a class="zoom" href="3a_outputs/3_4_a2.png"><img src="3a_outputs/3_4_a2.png" alt="Panda and flowers hybrid shown at 64 by 64"></a>
+                    <figcaption>Distant view · actual 64 × 64</figcaption>
+                </figure>
+            </div>
+            <p class="text">Up close it's flowers, and at 64×64 the dark parts become the panda's ears and eye patches.</p>
+
+            <h3>Hybrid 2: Butterfly / Owl</h3>
+            <p class="text">Distant: “a lithograph of a butterfly” · Close: “a lithograph of an owl”</p>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="3a_outputs/3_4_b1.png"><img src="3a_outputs/3_4_b1.png" alt="Butterfly and owl hybrid at full size"></a>
+                    <figcaption>Close view · 512 × 512</figcaption>
+                </figure>
+                <figure class="native">
+                    <a class="zoom" href="3a_outputs/3_4_b2.png"><img src="3a_outputs/3_4_b2.png" alt="Butterfly and owl hybrid shown at 64 by 64"></a>
+                    <figcaption>Distant view · actual 64 × 64</figcaption>
+                </figure>
+            </div>
+            <p class="text">Up close it's an owl, and at 64×64 the wings look more like a butterfly. This one is weaker since the owl's face is still visible.</p>
+        </section>
+
+        <!-- ===================== PART B ===================== -->
+
+        <section class="part" id="part-b">
+            <h2>Part B: Flow Matching from Scratch</h2>
+        </section>
+
+        <section class="part" id="b-1-1">
+            <h2>Part B 1.1: Implementing the UNet</h2>
+            <p class="text">I built the UNet from the given blocks, with skip connections between matching levels and D = 128. It downsamples twice to 7×7, flattens to 1×1, and then upsamples back, concatenating the matching encoder output at each level.</p>
+            <figure class="wide">
+                <a class="zoom" href="3b_outputs/unconditional_arch.png"><img src="3b_outputs/unconditional_arch.png" alt="Unconditional UNet architecture diagram"></a>
+                <figcaption>Unconditional UNet (diagram from the <a href="https://cal-cs180.github.io/fa26/hw/proj3-flow/partb.html">course website</a>)</figcaption>
+            </figure>
+        </section>
+
+        <section class="part" id="b-1-2">
+            <h2>Part B 1.2: Using the UNet to Train a Denoiser</h2>
+            <div class="formula">
+                <div class="formula-line"><i>z</i> <span class="eq">=</span> <i>x</i> <span class="op">+</span> <i>&sigma;</i>&thinsp;<i>&epsilon;</i>, &nbsp; <i>&epsilon;</i> ~ <i>N</i>(0, <i>I</i>)</div>
+                <div class="formula-line"><i>L</i> <span class="eq">=</span> &#8214;<i>D</i><sub>&theta;</sub>(<i>z</i>) <span class="op">&minus;</span> <i>x</i>&#8214;<sup>2</sup></div>
+            </div>
+            <p class="text">I added Gaussian noise scaled by σ to the digits. They're still readable around σ = 0.5 but mostly noise by σ = 1.0.</p>
+            <figure class="single">
+                <a class="zoom" href="3b_outputs/noise_levels.png"><img src="3b_outputs/noise_levels.png" alt="MNIST digits noised at sigma = 0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0"></a>
+                <figcaption>Noising process · σ = 0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0 (top to bottom)</figcaption>
+            </figure>
+
+            <h3>1.2.1 Training</h3>
+            <p class="text">σ = 0.5, D = 128, batch size 256, Adam with learning rate 1e-4, 5 epochs, and new noise every batch.</p>
+            <figure class="single">
+                <a class="zoom" href="3b_outputs/training_loss_1_2_1.png"><img src="3b_outputs/training_loss_1_2_1.png" alt="Training loss curve for the single-step denoiser"></a>
+                <figcaption>Training loss</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3b_outputs/denoising_epoch_1_1_2_1.png"><img src="3b_outputs/denoising_epoch_1_1_2_1.png" alt="Test-set denoising results at sigma = 0.5 after epoch 1"></a>
+                <figcaption>Test set at σ = 0.5 · after epoch 1</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3b_outputs/denoising_epoch_5_1_2_1.png"><img src="3b_outputs/denoising_epoch_5_1_2_1.png" alt="Test-set denoising results at sigma = 0.5 after epoch 5"></a>
+                <figcaption>Test set at σ = 0.5 · after epoch 5</figcaption>
+            </figure>
+            <p class="text">The rows are clean, noisy and denoised. Most of the noise is already gone after epoch 1, and the digits are cleaner after epoch 5.</p>
+
+            <h3>1.2.2 Out-of-Distribution Testing</h3>
+            <figure class="single">
+                <a class="zoom" href="3b_outputs/ood_testing_1_2_2.png"><img src="3b_outputs/ood_testing_1_2_2.png" alt="Denoiser outputs on the same test digits at noise levels it was not trained on"></a>
+                <figcaption>Same test digits at σ = 0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0 (top to bottom)</figcaption>
+            </figure>
+            <p class="text">It does well up to σ = 0.6, but at 0.8 and 1.0 the strokes start breaking up. This is probably because it was only trained at σ = 0.5.</p>
+
+            <h3>1.2.3 Denoising Pure Noise</h3>
+            <p class="text">Same training, but the input is pure noise.</p>
+            <figure class="single">
+                <a class="zoom" href="3b_outputs/pure_noise_loss_curve.png"><img src="3b_outputs/pure_noise_loss_curve.png" alt="Training loss curve for denoising pure noise"></a>
+                <figcaption>Training loss</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3b_outputs/pure_noise_epoch_1.png"><img src="3b_outputs/pure_noise_epoch_1.png" alt="Pure noise inputs and outputs after epoch 1"></a>
+                <figcaption>Pure noise inputs (top) and outputs (bottom) · after epoch 1</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3b_outputs/pure_noise_epoch_5.png"><img src="3b_outputs/pure_noise_epoch_5.png" alt="Pure noise inputs and outputs after epoch 5"></a>
+                <figcaption>Pure noise inputs (top) and outputs (bottom) · after epoch 5</figcaption>
+            </figure>
+            <p class="text">Every output is the same blurry shape, something between a 0, 3, 8 and 9, no matter what the input noise is, and it looks almost the same after epoch 1 and epoch 5. The loss also stops improving at around 0.07. This happens because the input has no information about which digit to produce, so the best the model can do under MSE loss is predict the average of all the training digits, like a centroid. The blurry shape is that average of all the digits overlapping. This is why one-step denoising doesn't work as a generative model.</p>
+        </section>
+
+        <section class="part" id="b-2-1">
+            <h2>Part B 2.1: Adding Time Conditioning to UNet</h2>
+            <div class="formula">
+                <div class="formula-line"><i>x</i><sub>t</sub> <span class="eq">=</span> (1 <span class="op">&minus;</span> <i>t</i>)<i>x</i><sub>0</sub> <span class="op">+</span> <i>t</i>&thinsp;<i>x</i><sub>1</sub>, &nbsp; <i>u</i> <span class="eq">=</span> <i>x</i><sub>1</sub> <span class="op">&minus;</span> <i>x</i><sub>0</sub></div>
+                <div class="formula-line"><i>L</i> <span class="eq">=</span> &#8214;<i>u</i><sub>&theta;</sub>(<i>x</i><sub>t</sub>, <i>t</i>) <span class="op">&minus;</span> (<i>x</i><sub>1</sub> <span class="op">&minus;</span> <i>x</i><sub>0</sub>)&#8214;<sup>2</sup></div>
+            </div>
+            <p class="text">The UNet now predicts the velocity toward the clean image.</p>
+        </section>
+
+        <section class="part" id="b-2-2">
+            <h2>Part B 2.2: Training the Time-Conditioned UNet</h2>
+            <p class="text">D = 64, batch size 64, 10 epochs, Adam with learning rate 1e-2 and exponential decay, and 50 timesteps.</p>
+            <figure class="single">
+                <a class="zoom" href="3b_outputs/loss_curve_2_2.png"><img src="3b_outputs/loss_curve_2_2.png" alt="Training loss curve for the time-conditioned UNet"></a>
+                <figcaption>Training loss · time-conditioned UNet</figcaption>
+            </figure>
+        </section>
+
+        <section class="part" id="b-2-3">
+            <h2>Part B 2.3: Sampling from the Time-Conditioned UNet</h2>
+            <p class="text">I started from noise and took 50 Euler steps, with the same seed for each epoch.</p>
+            <figure class="wide">
+                <a class="zoom" href="3b_outputs/2_3_epoch_1.png"><img src="3b_outputs/2_3_epoch_1.png" alt="Time-conditioned samples after epoch 1"></a>
+                <figcaption>After epoch 1</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3b_outputs/2_3_epoch_5.png"><img src="3b_outputs/2_3_epoch_5.png" alt="Time-conditioned samples after epoch 5"></a>
+                <figcaption>After epoch 5</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3b_outputs/2_3_epoch_10.png"><img src="3b_outputs/2_3_epoch_10.png" alt="Time-conditioned samples after epoch 10"></a>
+                <figcaption>After epoch 10</figcaption>
+            </figure>
+            <p class="text">Epoch 1 is mostly squiggles, and by epoch 10 most samples are readable digits, though some are still malformed. This makes sense since the model doesn't know which digit to make, so some samples end up somewhere between two digits.</p>
+        </section>
+
+        <section class="part" id="b-2-4">
+            <h2>Part B 2.4: Adding Class-Conditioning to UNet</h2>
+            <div class="formula">
+                <div class="formula-line">unflatten <span class="eq">=</span> <i>c</i><sub>1</sub> &odot; unflatten <span class="op">+</span> <i>t</i><sub>1</sub>, &nbsp; up<sub>1</sub> <span class="eq">=</span> <i>c</i><sub>2</sub> &odot; up<sub>1</sub> <span class="op">+</span> <i>t</i><sub>2</sub></div>
+            </div>
+            <p class="text">The digit is a one-hot vector fed in through two more FCBlocks, and it's dropped 10% of the time so CFG works.</p>
+        </section>
+
+        <section class="part" id="b-2-5">
+            <h2>Part B 2.5: Training the Class-Conditioned UNet</h2>
+            <p class="text">Same as 2.2, but with the class label and 300 timesteps.</p>
+            <figure class="single">
+                <a class="zoom" href="3b_outputs/loss_curve_2_5.png"><img src="3b_outputs/loss_curve_2_5.png" alt="Training loss curve for the class-conditioned UNet"></a>
+                <figcaption>Training loss · class-conditioned UNet</figcaption>
+            </figure>
+        </section>
+
+        <section class="part" id="b-2-6">
+            <h2>Part B 2.6: Sampling from the Class-Conditioned UNet</h2>
+            <div class="formula">
+                <div class="formula-line"><i>u</i> <span class="eq">=</span> <i>u</i><sub>u</sub> <span class="op">+</span> <i>&gamma;</i>(<i>u</i><sub>c</sub> <span class="op">&minus;</span> <i>u</i><sub>u</sub>), &nbsp; <i>&gamma;</i> <span class="eq">=</span> 5</div>
+            </div>
+            <p class="text">300 Euler steps with CFG (γ = 5), with four samples per digit.</p>
+            <figure class="wide">
+                <a class="zoom" href="3b_outputs/2_6_epoch_1.png"><img src="3b_outputs/2_6_epoch_1.png" alt="Class-conditioned samples, four of each digit, after epoch 1"></a>
+                <figcaption>After epoch 1</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3b_outputs/2_6_epoch_5.png"><img src="3b_outputs/2_6_epoch_5.png" alt="Class-conditioned samples, four of each digit, after epoch 5"></a>
+                <figcaption>After epoch 5</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="3b_outputs/2_6_epoch_10.png"><img src="3b_outputs/2_6_epoch_10.png" alt="Class-conditioned samples, four of each digit, after epoch 10"></a>
+                <figcaption>After epoch 10</figcaption>
+            </figure>
+            <p class="text">Even after epoch 1 every sample is the right digit, though some are blotchy. By epochs 5 and 10 they're clean, which is much better than the time-only model. This could be because the class label tells the model which digit to aim for, so it doesn't get stuck between digits like the time-only model.</p>
+
+            <h3>Removing the Learning Rate Scheduler</h3>
+            <p class="text">The scheduler starts at 1e-2 and decays to about 1e-3 by the end of training. Without it, I used a constant learning rate of 1e-3 for the whole 10 epochs. A smaller constant learning rate keeps the training stable and lets the model settle without needing to decay it, while being large enough to still train in the same number of epochs.</p>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="3b_outputs/loss_curve_2_5.png"><img src="3b_outputs/loss_curve_2_5.png" alt="Class-conditioned training loss with the scheduler"></a>
+                    <figcaption>Loss · with scheduler</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="3b_outputs/loss_curve_2_5_no_scheduler.png"><img src="3b_outputs/loss_curve_2_5_no_scheduler.png" alt="Class-conditioned training loss without the scheduler"></a>
+                    <figcaption>Loss · without scheduler</figcaption>
+                </figure>
+            </div>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="3b_outputs/2_6_epoch_10.png"><img src="3b_outputs/2_6_epoch_10.png" alt="Class-conditioned samples with the scheduler after 10 epochs"></a>
+                    <figcaption>With scheduler · epoch 10</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="3b_outputs/2_6_no_scheduler.png"><img src="3b_outputs/2_6_no_scheduler.png" alt="Class-conditioned samples without the scheduler after 10 epochs"></a>
+                    <figcaption>Without scheduler · epoch 10</figcaption>
+                </figure>
+            </div>
+            <p class="text">The loss curves and samples look almost the same with and without the scheduler.</p>
+        </section>
+    </main>
+
+    <div class="lightbox" id="lightbox" hidden>
+        <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <script>
+        (function () {
+            var box = document.getElementById('lightbox');
+            var img = document.getElementById('lightbox-img');
+
+            document.addEventListener('click', function (e) {
+                var link = e.target.closest('a.zoom');
+                if (link) {
+                    e.preventDefault();
+                    img.src = link.getAttribute('href');
+                    img.alt = link.querySelector('img').alt;
+                    box.hidden = false;
+                    document.body.style.overflow = 'hidden';
+                    return;
+                }
+                if (!box.hidden && !e.target.closest('#lightbox-img')) close();
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') close();
+            });
+
+            function close() {
+                box.hidden = true;
+                img.src = '';
+                document.body.style.overflow = '';
+            }
+        })();
+    </script>
+</body>
+</html>
