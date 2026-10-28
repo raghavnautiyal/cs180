@@ -25,3 +25,12 @@ proj3/project3a_results/*.pt
 proj3/project3a_results/*.json
 proj3/submission/
 proj3/submission.zip
+proj3/code/
+proj3/web/
+proj4/*.py
+proj4/submission/
+proj4/submission.zip
+proj4/correspondences/
+proj4/*.ipynb
+proj4/code/
+proj4/web/

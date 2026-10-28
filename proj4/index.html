@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS 180: Project 4</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+    <main class="container">
+        <header class="page-header">
+            <h1><a class="crumb" href="../">CS 180</a>: Project 4</h1>
+            <div class="subtitle">Image Warping and Mosaicing</div>
+        </header>
+
+        <p class="text intro">This is project 4 of CS 180 in Fall 2026, on image warping and mosaicing.</p>
+        <p class="text note">Note: click any image to enlarge it.</p>
+
+        <section class="part" id="part-a">
+            <h2>Part A: Image Warping and Mosaicing</h2>
+            <div class="formula">
+                <div class="formula-line"><i>p</i>&prime; <span class="eq">=</span> <i>H</i><i>p</i></div>
+            </div>
+            <p class="text">A homography is a 3×3 matrix <i>H</i> that maps a point <i>p</i> in one image to its matching point <i>p</i>&prime; in another. Points are written as (<i>x</i>, <i>y</i>, 1), and the result is divided by its last value to get back to pixel coordinates. This works when the camera only rotates between photos, or when the thing in the photo is flat, like a book cover or a sign.</p>
+        </section>
+
+        <section class="part" id="a-1">
+            <h2>Part A 1: Shoot the Pictures</h2>
+            <p class="text">I took all the photos on this page myself, except for the Berkeley Law sign in Part A 3, which I found online. Each pair below is the same scene from two angles.</p>
+            <p class="text">The first set is Giannini Hall, which I took right before lecture. The second set is the Gateway building, also right before lecture. The third set is the living room of my apartment, which could do with some cleaning.</p>
+
+            <h3>Building</h3>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="4a_images/building_2.jpeg"><img src="4a_images/building_2.jpeg" alt="Building, first photo"></a>
+                    <figcaption>Building 2</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="4a_images/building_1.jpeg"><img src="4a_images/building_1.jpeg" alt="Building, second photo"></a>
+                    <figcaption>Building 1</figcaption>
+                </figure>
+            </div>
+
+            <h3>Gateway</h3>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="4a_images/gateway_2.jpeg"><img src="4a_images/gateway_2.jpeg" alt="Gateway, first photo"></a>
+                    <figcaption>Gateway 2</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="4a_images/gateway_1.jpeg"><img src="4a_images/gateway_1.jpeg" alt="Gateway, second photo"></a>
+                    <figcaption>Gateway 1</figcaption>
+                </figure>
+            </div>
+
+            <h3>Living Room</h3>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="4a_images/living_room_1.jpeg"><img src="4a_images/living_room_1.jpeg" alt="Living room, first photo"></a>
+                    <figcaption>Living room 1</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="4a_images/living_room_2.jpeg"><img src="4a_images/living_room_2.jpeg" alt="Living room, second photo"></a>
+                    <figcaption>Living room 2</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <section class="part" id="a-2">
+            <h2>Part A 2: Recover Homographies</h2>
+            <div class="formula">
+                <div class="formula-line"><i>x h</i><sub>1</sub> <span class="op">+</span> <i>y h</i><sub>2</sub> <span class="op">+</span> <i>h</i><sub>3</sub> <span class="op">&minus;</span> <i>x x</i>&prime; <i>h</i><sub>7</sub> <span class="op">&minus;</span> <i>y x</i>&prime; <i>h</i><sub>8</sub> <span class="eq">=</span> <i>x</i>&prime;</div>
+                <div class="formula-line"><i>x h</i><sub>4</sub> <span class="op">+</span> <i>y h</i><sub>5</sub> <span class="op">+</span> <i>h</i><sub>6</sub> <span class="op">&minus;</span> <i>x y</i>&prime; <i>h</i><sub>7</sub> <span class="op">&minus;</span> <i>y y</i>&prime; <i>h</i><sub>8</sub> <span class="eq">=</span> <i>y</i>&prime;</div>
+            </div>
+            <p class="text">Each pair of points gives these two rows, and <i>h</i><sub>9</sub> is fixed at 1. With more than 4 points this is solved by least squares. <i>H</i> maps the second image onto the first, which is the one I leave fixed in the mosaic.</p>
+            <p class="text">I clicked points that are easy to find in both photos, like the roof and window corners on Giannini Hall, the trees, ground and entrance canopy at Gateway, and the window frames, desk and chair in my living room. I used 11 to 14 points per pair, so there are more equations than unknowns and least squares evens out small clicking errors. With the H I got, the warped points land about 4 to 7 pixels from where I clicked them on average.</p>
+
+            <h3>Building</h3>
+            <figure class="wide">
+                <a class="zoom" href="outputs/building_2_building_1_points.png"><img src="outputs/building_2_building_1_points.png" alt="Numbered point correspondences on the two building photos"></a>
+                <figcaption>14 correspondences · building 2 (left) and building 1 (right)</figcaption>
+            </figure>
+            <table class="results-table">
+                <caption>H mapping building 1 onto building 2</caption>
+                <tbody>
+                    <tr><td>0.6228</td><td>0.0723</td><td>470.86</td></tr>
+                    <tr><td>&minus;0.2583</td><td>0.9140</td><td>59.17</td></tr>
+                    <tr><td>&minus;0.000308</td><td>&minus;0.000023</td><td>1</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Gateway</h3>
+            <figure class="wide">
+                <a class="zoom" href="outputs/gateway_2_gateway_1_points.png"><img src="outputs/gateway_2_gateway_1_points.png" alt="Numbered point correspondences on the two gateway photos"></a>
+                <figcaption>11 correspondences · gateway 2 (left) and gateway 1 (right)</figcaption>
+            </figure>
+            <table class="results-table">
+                <caption>H mapping gateway 1 onto gateway 2</caption>
+                <tbody>
+                    <tr><td>0.4991</td><td>0.0492</td><td>518.75</td></tr>
+                    <tr><td>&minus;0.2828</td><td>0.8645</td><td>104.51</td></tr>
+                    <tr><td>&minus;0.000334</td><td>0.000008</td><td>1</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Living Room</h3>
+            <figure class="wide">
+                <a class="zoom" href="outputs/living_room_1_living_room_2_points.png"><img src="outputs/living_room_1_living_room_2_points.png" alt="Numbered point correspondences on the two living room photos"></a>
+                <figcaption>14 correspondences · living room 1 (left) and living room 2 (right)</figcaption>
+            </figure>
+            <table class="results-table">
+                <caption>H mapping living room 2 onto living room 1</caption>
+                <tbody>
+                    <tr><td>0.3056</td><td>&minus;0.0029</td><td>771.08</td></tr>
+                    <tr><td>&minus;0.2694</td><td>0.8469</td><td>113.84</td></tr>
+                    <tr><td>&minus;0.000482</td><td>0.000040</td><td>1</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="part" id="a-3">
+            <h2>Part A 3: Warp the Images</h2>
+            <div class="formula">
+                <div class="formula-line"><i>p</i><sub>source</sub> <span class="eq">=</span> <i>H</i><sup>&minus;1</sup> <i>p</i><sub>output</sub></div>
+            </div>
+            <p class="text">Nearest neighbor rounds that source location to the closest pixel. Bilinear takes a weighted average of the four pixels around it. For each photo I clicked the four corners of something that should be a rectangle, and warped them onto a rectangle. I clicked the corners with matplotlib's ginput, and mapped them to a 1000×600 rectangle for the book and an 800×400 one for the sign.</p>
+
+            <h3>Scheme Book</h3>
+            <p class="text">I got this book from the Gateway building research floors, where they were giving out free books, and photographed it on a table at home. The book is lying on its side, so the rectified cover comes out sideways.</p>
+            <figure class="wide">
+                <a class="zoom" href="4a_images/scheme_book.jpeg"><img src="4a_images/scheme_book.jpeg" alt="Photo of The Scheme Programming Language, taken at an angle"></a>
+                <figcaption>Original</figcaption>
+            </figure>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="outputs/scheme_nn.png"><img src="outputs/scheme_nn.png" alt="Scheme book cover rectified with nearest neighbor"></a>
+                    <figcaption>Nearest neighbor</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="outputs/scheme_bil.png"><img src="outputs/scheme_bil.png" alt="Scheme book cover rectified with bilinear interpolation"></a>
+                    <figcaption>Bilinear</figcaption>
+                </figure>
+            </div>
+
+            <h3>Berkeley Law Sign</h3>
+            <p class="text">I found this photo online.</p>
+            <figure class="wide">
+                <a class="zoom" href="4a_images/berkeley_law.jpg"><img src="4a_images/berkeley_law.jpg" alt="Berkeley Law sign photographed at an angle"></a>
+                <figcaption>Original · found online</figcaption>
+            </figure>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="outputs/berkeley_law_nn.png"><img src="outputs/berkeley_law_nn.png" alt="Berkeley Law sign rectified with nearest neighbor"></a>
+                    <figcaption>Nearest neighbor</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="outputs/berkeley_law_bil.png"><img src="outputs/berkeley_law_bil.png" alt="Berkeley Law sign rectified with bilinear interpolation"></a>
+                    <figcaption>Bilinear</figcaption>
+                </figure>
+            </div>
+
+            <h3>Nearest Neighbor vs Bilinear</h3>
+            <p class="text">Both give the same shape, but zooming in shows the difference. Nearest neighbor has jagged, stair-step edges on the letters, while bilinear makes them smooth but slightly softer. Bilinear is slower since it reads four pixels and takes a weighted average for every output pixel, while nearest neighbor just reads one. On my laptop, bilinear took about 1.5 times as long on the book and 2.7 times as long on the sign. The better quality is worth it, so I used bilinear for the mosaics.</p>
+            <table class="results-table">
+                <caption>Warp time (median of 3 runs)</caption>
+                <thead>
+                    <tr><th>Image</th><th>Nearest neighbor</th><th>Bilinear</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Scheme book</td><td>0.69 s</td><td>1.05 s</td></tr>
+                    <tr><td>Berkeley Law sign</td><td>0.09 s</td><td>0.23 s</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="part" id="a-4">
+            <h2>Part A 4: Blend the Images into a Mosaic</h2>
+            <div class="formula">
+                <div class="formula-line"><i>I</i> <span class="eq">=</span> (<i>w</i><sub>1</sub><i>I</i><sub>1</sub> <span class="op">+</span> <i>w</i><sub>2</sub><i>I</i><sub>2</sub>) / (<i>w</i><sub>1</sub> <span class="op">+</span> <i>w</i><sub>2</sub>)</div>
+            </div>
+            <p class="text">I leave the first image fixed and warp the second into it with bilinear interpolation. <i>w</i> is the distance from each pixel to the outside of its image, so the overlap fades from one photo into the other instead of a hard edge. I find the canvas size from the box that fits both the fixed image and the warped one, then place each image on the canvas using the offset from the warp.</p>
+            <p class="text">All three line up well. The building edges and windows match across the overlap, and the feathering hides the change in brightness between the two photos. The trees are a little softer in the overlap, probably because the leaves moved a bit between shots. The living room mosaic stretches out a lot on the right, since I turned the camera far between the two photos and a flat projection stretches things more the further they are from the fixed image.</p>
+
+            <h3>Building</h3>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="4a_images/building_2.jpeg"><img src="4a_images/building_2.jpeg" alt="Building photo that stays fixed"></a>
+                    <figcaption>Building 2 · fixed</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="4a_images/building_1.jpeg"><img src="4a_images/building_1.jpeg" alt="Building photo that gets warped"></a>
+                    <figcaption>Building 1 · warped</figcaption>
+                </figure>
+            </div>
+            <figure class="wide">
+                <a class="zoom" href="outputs/building_2_building_1_mosaic.png"><img src="outputs/building_2_building_1_mosaic.png" alt="Mosaic of the two building photos"></a>
+                <figcaption>Mosaic</figcaption>
+            </figure>
+
+            <h3>Gateway</h3>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="4a_images/gateway_2.jpeg"><img src="4a_images/gateway_2.jpeg" alt="Gateway photo that stays fixed"></a>
+                    <figcaption>Gateway 2 · fixed</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="4a_images/gateway_1.jpeg"><img src="4a_images/gateway_1.jpeg" alt="Gateway photo that gets warped"></a>
+                    <figcaption>Gateway 1 · warped</figcaption>
+                </figure>
+            </div>
+            <figure class="wide">
+                <a class="zoom" href="outputs/gateway_2_gateway_1_mosaic.png"><img src="outputs/gateway_2_gateway_1_mosaic.png" alt="Mosaic of the two gateway photos"></a>
+                <figcaption>Mosaic</figcaption>
+            </figure>
+
+            <h3>Living Room</h3>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="4a_images/living_room_1.jpeg"><img src="4a_images/living_room_1.jpeg" alt="Living room photo that stays fixed"></a>
+                    <figcaption>Living room 1 · fixed</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="4a_images/living_room_2.jpeg"><img src="4a_images/living_room_2.jpeg" alt="Living room photo that gets warped"></a>
+                    <figcaption>Living room 2 · warped</figcaption>
+                </figure>
+            </div>
+            <figure class="wide">
+                <a class="zoom" href="outputs/living_room_1_living_room_2_mosaic.png"><img src="outputs/living_room_1_living_room_2_mosaic.png" alt="Mosaic of the two living room photos"></a>
+                <figcaption>Mosaic</figcaption>
+            </figure>
+        </section>
+    </main>
+
+    <div class="lightbox" id="lightbox" hidden>
+        <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <script>
+        (function () {
+            var box = document.getElementById('lightbox');
+            var img = document.getElementById('lightbox-img');
+
+            document.addEventListener('click', function (e) {
+                var link = e.target.closest('a.zoom');
+                if (link) {
+                    e.preventDefault();
+                    img.src = link.getAttribute('href');
+                    img.alt = link.querySelector('img').alt;
+                    box.hidden = false;
+                    document.body.style.overflow = 'hidden';
+                    return;
+                }
+                if (!box.hidden && !e.target.closest('#lightbox-img')) close();
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') close();
+            });
+
+            function close() {
+                box.hidden = true;
+                img.src = '';
+                document.body.style.overflow = '';
+            }
+        })();
+    </script>
+</body>
+</html>
