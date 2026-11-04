@@ -34,3 +34,6 @@ proj4/correspondences/
 proj4/*.ipynb
 proj4/code/
 proj4/web/
+proj4/README.txt
+proj4/*.zip
+proj4/*.pdf

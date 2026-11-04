@@ -230,6 +230,185 @@
                 <figcaption>Mosaic</figcaption>
             </figure>
         </section>
+
+        <section class="part" id="part-b">
+            <h2>Part B: Feature Matching for Autostitching</h2>
+            <p class="text">In Part A I clicked the correspondences by hand. In Part B they are found automatically, following “Multi-Image Matching using Multi-Scale Oriented Patches” by Brown et al., with a few simplifications: a single scale, no sub-pixel accuracy and no rotation invariance. I used the same three image pairs as Part A, and reused <code>computeH</code> and the mosaic code from Part A.</p>
+        </section>
+
+        <section class="part" id="b-1">
+            <h2>Part B 1: Harris Corner Detection and ANMS</h2>
+            <div class="formula">
+                <div class="formula-line"><i>f</i> <span class="eq">=</span> 2 <span class="fn">det</span>(<i>M</i>) / (<span class="fn">tr</span>(<i>M</i>) <span class="op">+</span> <i>ε</i>)</div>
+            </div>
+            <p class="text">Harris finds points where a small window changes a lot when shifted in any direction. I used the staff <code>harris.py</code> on the grayscale image. It builds the matrix <i>M</i> from the image gradients at every pixel with σ = 1, and scores it with <i>f</i>, which is the paper's corner strength det / tr scaled by 2. Every local maximum of <i>f</i> counts as a corner, and corners within 20 pixels of the border are dropped so the 40×40 window in B 2 always fits.</p>
+            <div class="formula">
+                <div class="formula-line"><i>r<sub>i</sub></i> <span class="eq">=</span> <span class="fn">min</span><sub><i>j</i></sub> |<i>x<sub>i</sub></i> <span class="op">&minus;</span> <i>x<sub>j</sub></i>| &nbsp;such that&nbsp; <i>f</i>(<i>x<sub>i</sub></i>) <span class="op">&lt;</span> 0.9 <i>f</i>(<i>x<sub>j</sub></i>)</div>
+            </div>
+            <p class="text">Since there is no threshold, Harris keeps even very weak corners and finds far too many to match. ANMS gives each corner a radius <i>r<sub>i</sub></i>, the distance to the closest corner that is clearly stronger than it, and keeps the corners with the largest radii. A corner that is the strongest in a big area gets a big radius, so the kept corners are both strong and spread out. I run ANMS on all the Harris corners and keep the top 500. I compare squared distances with <code>dist2</code> from <code>harris.py</code>, which gives the same ranking.</p>
+            <p class="text">On Giannini Hall, Harris finds 46089 corners, so many that they cover almost the whole photo. After ANMS the 500 corners are spread evenly over the image. Because Harris has no threshold, some of the kept corners land on plain areas like the sky and the grass, where there is not much to match. Gateway and the living room look the same way, with about 42000 to 48000 corners per photo before ANMS.</p>
+
+            <h3>Building</h3>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="4b_outputs/building_2_harris.png"><img src="4b_outputs/building_2_harris.png" alt="Harris corners on building 2"></a>
+                    <figcaption>Harris · 46089 corners</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="4b_outputs/building_2_anms.png"><img src="4b_outputs/building_2_anms.png" alt="Corners on building 2 after ANMS"></a>
+                    <figcaption>After ANMS · 500 corners</figcaption>
+                </figure>
+            </div>
+
+            <h3>Gateway</h3>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="4b_outputs/gateway_2_harris.png"><img src="4b_outputs/gateway_2_harris.png" alt="Harris corners on gateway 2"></a>
+                    <figcaption>Harris · 42899 corners</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="4b_outputs/gateway_2_anms.png"><img src="4b_outputs/gateway_2_anms.png" alt="Corners on gateway 2 after ANMS"></a>
+                    <figcaption>After ANMS · 500 corners</figcaption>
+                </figure>
+            </div>
+
+            <h3>Living Room</h3>
+            <div class="gallery">
+                <figure>
+                    <a class="zoom" href="4b_outputs/living_room_1_harris.png"><img src="4b_outputs/living_room_1_harris.png" alt="Harris corners on living room 1"></a>
+                    <figcaption>Harris · 47025 corners</figcaption>
+                </figure>
+                <figure>
+                    <a class="zoom" href="4b_outputs/living_room_1_anms.png"><img src="4b_outputs/living_room_1_anms.png" alt="Corners on living room 1 after ANMS"></a>
+                    <figcaption>After ANMS · 500 corners</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <section class="part" id="b-2">
+            <h2>Part B 2: Feature Descriptor Extraction</h2>
+            <div class="formula">
+                <div class="formula-line"><i>d</i> <span class="eq">=</span> (<i>p</i> <span class="op">&minus;</span> <i>μ</i>) / <i>σ</i></div>
+            </div>
+            <p class="text">For each corner I take the 40×40 window around it from the image blurred with σ = 2, and sample every 5th pixel to get an 8×8 patch <i>p</i>. The blur stops the sampling from aliasing, and the big window makes the descriptor less sensitive to small errors in the corner position. Then I subtract the patch mean <i>μ</i> and divide by its standard deviation <i>σ</i>, so differences in brightness and contrast between the two photos don't matter. Each descriptor is flattened into a vector of 64 values.</p>
+            <p class="text">Below are the first 10 descriptors from the first photo of each pair. They look very blurry, but each one still keeps the rough shape around its corner, like an edge or a bright spot.</p>
+
+            <h3>Building</h3>
+            <figure class="single">
+                <a class="zoom" href="4b_outputs/building_2_descriptors.png"><img src="4b_outputs/building_2_descriptors.png" alt="Ten 8 by 8 descriptors from building 2"></a>
+                <figcaption>Building 2 · 10 descriptors</figcaption>
+            </figure>
+
+            <h3>Gateway</h3>
+            <figure class="single">
+                <a class="zoom" href="4b_outputs/gateway_2_descriptors.png"><img src="4b_outputs/gateway_2_descriptors.png" alt="Ten 8 by 8 descriptors from gateway 2"></a>
+                <figcaption>Gateway 2 · 10 descriptors</figcaption>
+            </figure>
+
+            <h3>Living Room</h3>
+            <figure class="single">
+                <a class="zoom" href="4b_outputs/living_room_1_descriptors.png"><img src="4b_outputs/living_room_1_descriptors.png" alt="Ten 8 by 8 descriptors from living room 1"></a>
+                <figcaption>Living room 1 · 10 descriptors</figcaption>
+            </figure>
+        </section>
+
+        <section class="part" id="b-3">
+            <h2>Part B 3: Feature Matching</h2>
+            <div class="formula">
+                <div class="formula-line"><i>e</i><sub>1-NN</sub> / <i>e</i><sub>2-NN</sub> <span class="op">&lt;</span> 0.7</div>
+            </div>
+            <p class="text">For every descriptor in the first photo I find its two nearest neighbors in the second, where <i>e</i> is the squared SSD between descriptors. A wrong match usually has a second best that is almost as close as the best, so I only keep a match if the ratio of the two is below 0.7. This is Lowe's ratio test, and Figure 6b of the paper shows it separates right and wrong matches much better than the distance alone. The figures show the 50 matches with the lowest ratio.</p>
+            <p class="text">On Gateway most of the matches look right. The building and the living room have many more clearly wrong ones, like the long diagonal lines that connect points on different objects. A lot of these start in plain areas like the sky or the wall. Removing these is the job of RANSAC in B 4.</p>
+
+            <h3>Building</h3>
+            <figure class="wide">
+                <a class="zoom" href="4b_outputs/building_2_building_1_matches.png"><img src="4b_outputs/building_2_building_1_matches.png" alt="Feature matches between the two building photos"></a>
+                <figcaption>51 matches · 50 shown</figcaption>
+            </figure>
+
+            <h3>Gateway</h3>
+            <figure class="wide">
+                <a class="zoom" href="4b_outputs/gateway_2_gateway_1_matches.png"><img src="4b_outputs/gateway_2_gateway_1_matches.png" alt="Feature matches between the two gateway photos"></a>
+                <figcaption>120 matches · 50 shown</figcaption>
+            </figure>
+
+            <h3>Living Room</h3>
+            <figure class="wide">
+                <a class="zoom" href="4b_outputs/living_room_1_living_room_2_matches.png"><img src="4b_outputs/living_room_1_living_room_2_matches.png" alt="Feature matches between the two living room photos"></a>
+                <figcaption>98 matches · 50 shown</figcaption>
+            </figure>
+        </section>
+
+        <section class="part" id="b-4">
+            <h2>Part B 4: RANSAC and Automatic Stitching</h2>
+            <div class="formula">
+                <div class="formula-line">|<i>H</i><i>p<sub>i</sub></i> <span class="op">&minus;</span> <i>p</i>&prime;<sub><i>i</i></sub>| <span class="op">&lt;</span> 3 px</div>
+            </div>
+            <p class="text">RANSAC picks 4 random matches, fits an exact homography to them with <code>computeH</code> from Part A, and counts how many of all the matches it maps within 3 pixels of their partner. These are the inliers. I repeat this 2000 times, skipping samples where all 4 points are on a line, and keep the largest set of inliers. Then I refit <i>H</i> with least squares on all the inliers and build the mosaic with the same code as Part A 4.</p>
+            <table class="results-table">
+                <caption>Points at each step (first photo / second photo)</caption>
+                <thead>
+                    <tr><th>Scene</th><th>Harris</th><th>After ANMS</th><th>Matches</th><th>Inliers</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Building</td><td>46089 / 47856</td><td>500 / 500</td><td>51</td><td>11</td></tr>
+                    <tr><td>Gateway</td><td>42899 / 42438</td><td>500 / 500</td><td>120</td><td>70</td></tr>
+                    <tr><td>Living room</td><td>47025 / 47320</td><td>500 / 500</td><td>98</td><td>19</td></tr>
+                </tbody>
+            </table>
+            <p class="text">RANSAC removes the wrong matches from B 3. On the building and in the living room the diagonal lines are gone, and the lines that are left all point roughly the same way. On the building only 11 of the 51 matches survive, and in the living room 19 of the 98. Many of the matches came from plain areas, so most of them get thrown out, but 11 is still more than the 4 a homography needs. On Gateway 70 of the 120 matches are inliers. With the final <i>H</i>, the inliers land about 0.6 to 1.5 pixels from their match on average.</p>
+
+            <h3>Building</h3>
+            <figure class="wide">
+                <a class="zoom" href="4b_outputs/building_2_building_1_inliers.png"><img src="4b_outputs/building_2_building_1_inliers.png" alt="RANSAC inlier matches between the two building photos"></a>
+                <figcaption>RANSAC inliers · 11</figcaption>
+            </figure>
+
+            <h3>Gateway</h3>
+            <figure class="wide">
+                <a class="zoom" href="4b_outputs/gateway_2_gateway_1_inliers.png"><img src="4b_outputs/gateway_2_gateway_1_inliers.png" alt="RANSAC inlier matches between the two gateway photos"></a>
+                <figcaption>RANSAC inliers · 70, 50 shown</figcaption>
+            </figure>
+
+            <h3>Living Room</h3>
+            <figure class="wide">
+                <a class="zoom" href="4b_outputs/living_room_1_living_room_2_inliers.png"><img src="4b_outputs/living_room_1_living_room_2_inliers.png" alt="RANSAC inlier matches between the two living room photos"></a>
+                <figcaption>RANSAC inliers · 19</figcaption>
+            </figure>
+
+            <h3>Manual vs Automatic</h3>
+            <p class="text">The automatic mosaics look about as good as the manual ones. On the building and Gateway the two versions are very close, and the edges and windows line up in both. The living room is where they differ most: the automatic mosaic stretches the right side less. Both homographies were fit to points around the windows, desk and chair, so small differences between them grow a lot at the far right edge. Neither version is perfect there, since the chair shows a double edge in both. The chair is close to the camera, so it moves more than the rest of the room if the camera shifts a little between shots. The biggest win is that I didn't have to click a single point.</p>
+
+            <h3>Building</h3>
+            <figure class="wide">
+                <a class="zoom" href="4b_outputs/building_2_building_1_comparison.png"><img src="4b_outputs/building_2_building_1_comparison.png" alt="Manual and automatic building mosaics side by side"></a>
+                <figcaption>Manual (left) and automatic (right)</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="4b_outputs/building_2_building_1_auto.png"><img src="4b_outputs/building_2_building_1_auto.png" alt="Automatic mosaic of the two building photos"></a>
+                <figcaption>Automatic mosaic</figcaption>
+            </figure>
+
+            <h3>Gateway</h3>
+            <figure class="wide">
+                <a class="zoom" href="4b_outputs/gateway_2_gateway_1_comparison.png"><img src="4b_outputs/gateway_2_gateway_1_comparison.png" alt="Manual and automatic gateway mosaics side by side"></a>
+                <figcaption>Manual (left) and automatic (right)</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="4b_outputs/gateway_2_gateway_1_auto.png"><img src="4b_outputs/gateway_2_gateway_1_auto.png" alt="Automatic mosaic of the two gateway photos"></a>
+                <figcaption>Automatic mosaic</figcaption>
+            </figure>
+
+            <h3>Living Room</h3>
+            <figure class="wide">
+                <a class="zoom" href="4b_outputs/living_room_1_living_room_2_comparison.png"><img src="4b_outputs/living_room_1_living_room_2_comparison.png" alt="Manual and automatic living room mosaics side by side"></a>
+                <figcaption>Manual (left) and automatic (right)</figcaption>
+            </figure>
+            <figure class="wide">
+                <a class="zoom" href="4b_outputs/living_room_1_living_room_2_auto.png"><img src="4b_outputs/living_room_1_living_room_2_auto.png" alt="Automatic mosaic of the two living room photos"></a>
+                <figcaption>Automatic mosaic</figcaption>
+            </figure>
+        </section>
     </main>
 
     <div class="lightbox" id="lightbox" hidden>
