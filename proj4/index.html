@@ -318,7 +318,7 @@
                 <div class="formula-line"><i>e</i><sub>1-NN</sub> / <i>e</i><sub>2-NN</sub> <span class="op">&lt;</span> 0.7</div>
             </div>
             <p class="text">For every descriptor in the first photo I find its two nearest neighbors in the second, where <i>e</i> is the squared SSD between descriptors. A wrong match usually has a second best that is almost as close as the best, so I only keep a match if the ratio of the two is below 0.7. This is Lowe's ratio test, and Figure 6b of the paper shows it separates right and wrong matches much better than the distance alone. The figures show the 50 matches with the lowest ratio.</p>
-            <p class="text">On Gateway most of the matches look right. The building and the living room have many more clearly wrong ones, like the long diagonal lines that connect points on different objects. A lot of these start in plain areas like the sky or the wall. Removing these is the job of RANSAC in B 4.</p>
+            <p class="text">On Gateway most of the matches look right. The building and the living room have many more clearly wrong ones, like the long diagonal lines that connect points on different objects. A lot of these start in plain areas like the sky or the wall. RANSAC removes these in B 4.</p>
 
             <h3>Building</h3>
             <figure class="wide">
@@ -377,7 +377,7 @@
             </figure>
 
             <h3>Manual vs Automatic</h3>
-            <p class="text">The automatic mosaics look about as good as the manual ones. On the building and Gateway the two versions are very close, and the edges and windows line up in both. The living room is where they differ most: the automatic mosaic stretches the right side less. Both homographies were fit to points around the windows, desk and chair, so small differences between them grow a lot at the far right edge. Neither version is perfect there, since the chair shows a double edge in both. The chair is close to the camera, so it moves more than the rest of the room if the camera shifts a little between shots. The biggest win is that I didn't have to click a single point.</p>
+            <p class="text">The automatic mosaics look about as good as the manual ones. On the building and Gateway the two versions are very close, and the edges and windows line up in both. They differ most in the living room, where the automatic mosaic stretches the right side less. Both homographies were fit to points around the windows, desk and chair, so small differences between them grow a lot at the far right edge. The chair shows a double edge in both versions. The chair is close to the camera, so it moves more than the rest of the room if the camera shifts a little between shots. At least I didn't have to manually click points.</p>
 
             <h3>Building</h3>
             <figure class="wide">
